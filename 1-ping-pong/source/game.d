@@ -1,0 +1,105 @@
+module game;
+
+import bindbc.sdl;
+
+import window;
+import paddle;
+import ball;
+
+void game_start() {
+    SDL_Init(SDL_INIT_VIDEO);
+
+    SDL_Window* window = SDL_CreateWindow("PongGame", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+    Ball ball = {{SCREEN_WIDTH / 2 - BALL_SIZE / 2, SCREEN_HEIGHT / 2 - BALL_SIZE / 2, BALL_SIZE, BALL_SIZE}, 1, 1};
+
+    bool running = true;
+    SDL_Event e;
+
+    while (running) {
+      while (SDL_PollEvent(&e) != 0) {
+        switch (e.type) {
+          default:
+            break;
+          case SDL_QUIT:
+            running = false;
+            break;
+          case SDL_KEYDOWN:
+            switch (e.key.keysym.sym) {
+              default:
+                break;
+              case SDLK_w:
+                paddleA.dy = -1;
+                break;
+              case SDLK_s:
+                paddleA.dy = 1;
+                break;
+              case SDLK_UP:
+                paddleB.dy = -1;
+                break;
+              case SDLK_DOWN:
+                paddleB.dy = 1;
+                break;
+            }
+            break;
+          case SDL_KEYUP:
+            switch (e.key.keysym.sym) {
+              default:
+                break;
+              case SDLK_w:
+              case SDLK_s:
+                paddleA.dy = 0;
+                break;
+              case SDLK_UP:
+              case SDLK_DOWN:
+                paddleB.dy = 0;
+                break;
+            }
+            break;
+        }
+      }
+
+      paddleA.rect.y += paddleA.dy;
+      paddleB.rect.y += paddleB.dy;
+      ball.rect.x += ball.dx;
+      ball.rect.y += ball.dy;
+
+      if (ball.rect.y <= 0 || ball.rect.y + BALL_SIZE >= SCREEN_HEIGHT) {
+        ball.dy = -ball.dy;
+      }
+
+      SDL_Rect paddleACollision = SDL_Rect(paddleA.rect.x, paddleA.rect.y, paddleA.rect.w, paddleA.rect.h);
+      SDL_Rect paddleBCollision = SDL_Rect(paddleB.rect.x, paddleB.rect.y, paddleB.rect.w, paddleB.rect.h);
+
+      if (SDL_HasIntersection(&ball.rect, &paddleACollision) || SDL_HasIntersection(&ball.rect, &paddleBCollision)) {
+        ball.dx = -ball.dx;
+      }
+
+      if (ball.rect.x <= 0) {
+        ball.rect.x = SCREEN_WIDTH / 2 - BALL_SIZE / 2;
+        ball.rect.y = SCREEN_HEIGHT / 2 - BALL_SIZE / 2;
+        ball.dx = 1;
+      }
+
+      if (ball.rect.x + BALL_SIZE >= SCREEN_WIDTH) {
+        ball.rect.x = SCREEN_WIDTH / 2 - BALL_SIZE / 2;
+        ball.rect.y = SCREEN_HEIGHT / 2 - BALL_SIZE / 2;
+        ball.dx = -1;
+      }
+
+      SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+      SDL_RenderClear(renderer);
+
+      SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+      SDL_RenderFillRect(renderer, &paddleA.rect);
+      SDL_RenderFillRect(renderer, &paddleB.rect);
+      SDL_RenderFillRect(renderer, &ball.rect);
+
+      SDL_RenderPresent(renderer);
+    }
+
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+}

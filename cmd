@@ -1,3 +1,5 @@
+## DIY steps to create the game yourself instead of cloning from this repo
+
 # install dmd
 curl -fsS https://dlang.org/install.sh | bash -s dmd
 
