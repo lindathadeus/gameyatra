@@ -1,13 +1,7 @@
 import bindbc.sdl;
 
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 600;
-const int PADDLE_WIDTH = 20;
-const int PADDLE_HEIGHT = 100;
-const int BALL_SIZE = 20;
-
+import window;
 import paddle;
-
 import ball;
 
 void main(string[] argv) {
@@ -22,8 +16,6 @@ void main(string[] argv) {
     SDL_Window* window = SDL_CreateWindow("PongGame", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-    Paddle paddleA = {{0, SCREEN_HEIGHT / 2 - PADDLE_HEIGHT / 2, PADDLE_WIDTH, PADDLE_HEIGHT}, 0};
-    Paddle paddleB = {{SCREEN_WIDTH - PADDLE_WIDTH, SCREEN_HEIGHT / 2 - PADDLE_HEIGHT / 2, PADDLE_WIDTH, PADDLE_HEIGHT}, 0};
     Ball ball = {{SCREEN_WIDTH / 2 - BALL_SIZE / 2, SCREEN_HEIGHT / 2 - BALL_SIZE / 2, BALL_SIZE, BALL_SIZE}, 1, 1};
 
     bool running = true;
