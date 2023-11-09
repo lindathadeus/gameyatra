@@ -13,4 +13,9 @@ dub init 1-ping-pong
 # add the necessary sdl libs
 dub add bindbc-sdl
 
+# build and run
+dub build
+dub run
 
+# ref
+https://wiki.libsdl.org/

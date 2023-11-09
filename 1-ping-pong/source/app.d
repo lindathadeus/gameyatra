@@ -6,15 +6,9 @@ const int PADDLE_WIDTH = 20;
 const int PADDLE_HEIGHT = 100;
 const int BALL_SIZE = 20;
 
-struct Paddle {
-  SDL_Rect rect;
-  int dy;
-}
+import paddle;
 
-struct Ball {
-  SDL_Rect rect;
-  int dx, dy;
-}
+import ball;
 
 void main(string[] argv) {
   SDLSupport ret = loadSDL();
