@@ -3,4 +3,3 @@ This is a game to learn about game development. The game is a journey of the pla
 
 # Levels
 The second level is another game that is a smaller clone of this game https://armorgames.com/play/13213/i-saw-her-standing-there
-The first level is a ping pong game.
