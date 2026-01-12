@@ -181,13 +181,13 @@ int main() {
         if (!gameOver) {
             // Draw player
             if (!isFalling) {
-                DrawEntity(player, BROWN, BROWN);
+                DrawEntity(player, BLACK, BLACK);
             } else {
-                DrawRotatedEntity(player, rotationAngle, BROWN, BROWN);
+                DrawRotatedEntity(player, rotationAngle, BLACK, BLACK);
             }
 
             // Draw zombie
-            DrawEntity(zombie, RED, RED);
+            DrawEntity(zombie, PINK, PINK);
 
             // Draw cage
             DrawCage(cage, 5, DARKGRAY); // 5 bars for the cage
