@@ -95,8 +95,8 @@ int main() {
     Entity player = {{400, 300}, 10.0f, 20.0f, 40.0f};
 
     // Reddie setup
-    Entity reddie = {{200, 300}, 10.0f, 20.0f, 40.0f};
-    const float reddieSpeed = 2.0f;
+    Entity zombie = {{200, 300}, 10.0f, 20.0f, 40.0f};
+    const float zombieSpeed = 2.0f;
     const float followThreshold = 150.0f;
 
     // Cage setup
@@ -113,7 +113,7 @@ int main() {
             // Level narratives
             switch (level) {
                 case 1:
-                    levelNarrative = "I loved her but she was a reddie. So I put her safe in a cage.";
+                    levelNarrative = "I loved her but she was a zombie. So I put her safe in a cage.";
                     break;
                 case 2:
                     levelNarrative = "I knew she loved me too, because she always tried to hug me.";
@@ -135,13 +135,13 @@ int main() {
                 if (IsKeyDown(KEY_DOWN)) player.position.y += 4.0f;
 
                 // Reddie movement
-                if (IsWithinThreshold(player.position, reddie.position, followThreshold)) {
-                    Vector2 direction = Vector2Subtract(player.position, reddie.position);
-                    reddie.position = Vector2Add(reddie.position, Vector2Scale(Vector2Normalize(direction), reddieSpeed));
+                if (IsWithinThreshold(player.position, zombie.position, followThreshold)) {
+                    Vector2 direction = Vector2Subtract(player.position, zombie.position);
+                    zombie.position = Vector2Add(zombie.position, Vector2Scale(Vector2Normalize(direction), zombieSpeed));
                 }
 
-                // Check if the reddie is in the cage
-                if (IsEntityInCage(reddie, cage)) {
+                // Check if the zombie is in the cage
+                if (IsEntityInCage(zombie, cage)) {
                     isReddieSafe = true;
                 }
 
@@ -149,11 +149,11 @@ int main() {
                 if (isReddieSafe) {
                     level++;
                     isReddieSafe = false;
-                    reddie.position = (Vector2){200, 300}; // Reset reddie position
+                    zombie.position = (Vector2){200, 300}; // Reset zombie position
                 }
 
-                // Check for collision between player and reddie
-                if (IsCollision(player, reddie)) {
+                // Check for collision between player and zombie
+                if (IsCollision(player, zombie)) {
                     isFalling = true;
                     fallTimer = 2.0f; // 2 seconds for fall animation
                     rotationAngle = 0.0f; // Start rotation at 0
@@ -166,7 +166,7 @@ int main() {
 
                 if (fallTimer <= 0.0f) {
                     gameOver = true;
-                    levelNarrative = "Game Over. The reddie hugged you!";
+                    levelNarrative = "Game Over. The zombie hugged you!";
                 }
             }
         }
@@ -186,8 +186,8 @@ int main() {
                 DrawRotatedEntity(player, rotationAngle, BROWN, BROWN);
             }
 
-            // Draw reddie
-            DrawEntity(reddie, RED, RED);
+            // Draw zombie
+            DrawEntity(zombie, RED, RED);
 
             // Draw cage
             DrawCage(cage, 5, DARKGRAY); // 5 bars for the cage
@@ -203,7 +203,7 @@ int main() {
             gameOver = false;
             level = 1;
             player.position = (Vector2){400, 300};
-            reddie.position = (Vector2){200, 300};
+            zombie.position = (Vector2){200, 300};
             isFalling = false;
             fallTimer = 0.0f;
         }
