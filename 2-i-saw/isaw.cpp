@@ -88,13 +88,13 @@ void DrawRotatedEntity(Entity entity, float angle, Color headColor, Color bodyCo
 
 int main() {
     // Initialize the window
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Reddie Love");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Zombie Love");
     SetTargetFPS(60);
 
     // Player setup
     Entity player = {{400, 300}, 10.0f, 20.0f, 40.0f};
 
-    // Reddie setup
+    // Zombie setup
     Entity zombie = {{200, 300}, 10.0f, 20.0f, 40.0f};
     const float zombieSpeed = 2.0f;
     const float followThreshold = 150.0f;
@@ -104,7 +104,7 @@ int main() {
 
     // Game variables
     int level = 1;
-    bool isReddieSafe = false;
+    bool isZombieSafe = false;
     bool gameOver = false;
     const char *levelNarrative = "";
 
@@ -134,7 +134,7 @@ int main() {
                 if (IsKeyDown(KEY_UP)) player.position.y -= 4.0f;
                 if (IsKeyDown(KEY_DOWN)) player.position.y += 4.0f;
 
-                // Reddie movement
+                // Zombie movement
                 if (IsWithinThreshold(player.position, zombie.position, followThreshold)) {
                     Vector2 direction = Vector2Subtract(player.position, zombie.position);
                     zombie.position = Vector2Add(zombie.position, Vector2Scale(Vector2Normalize(direction), zombieSpeed));
@@ -142,13 +142,13 @@ int main() {
 
                 // Check if the zombie is in the cage
                 if (IsEntityInCage(zombie, cage)) {
-                    isReddieSafe = true;
+                    isZombieSafe = true;
                 }
 
                 // Level progression
-                if (isReddieSafe) {
+                if (isZombieSafe) {
                     level++;
-                    isReddieSafe = false;
+                    isZombieSafe = false;
                     zombie.position = (Vector2){200, 300}; // Reset zombie position
                 }
 
