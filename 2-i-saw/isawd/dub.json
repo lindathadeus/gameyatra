@@ -1,0 +1,1 @@
+{"libs" : ["raylib"], "lflags-posix" : ["-L."], "lflags-osx" : ["-rpath", "@executable_path/"], "lflags-linux" : ["-rpath=$$ORIGIN"], "description" : "A minimal D application.", "name" : "isawd", "dependencies" : {"raylib-d" : "~>5.5.3"}, "authors" : ["Linda J"], "copyright" : "Copyright © 2026, Linda J", "license" : "proprietary"}
