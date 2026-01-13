@@ -1,5 +1,5 @@
 #The GOAL of the project is to clone the game, "I saw her standing there",
-#whenever we see a mismatch between the two, we can treat it
+#whenever we see a feature-mismatch between the two, we can treat it
 #as a bug and work on fixing the bug.
 #
 #Below is a list of bugs, not exhaustive 
@@ -10,9 +10,10 @@
 [X] The name of the broken player is not zombie
 [X] The colors of the players are not matching with the original game
 [X] There is no platform in the game
-[] The player and the zombie are not strictly left and right moving
+[X] The player and the zombie are not strictly left and right moving
 [] The player and the zombie are not jumping upwards
 [] The player and the zombie are not stopping at the canvas (screen)
 [] The player and the zombie are going below the platform
-[] The Cage animation after collision is missing
+[X] The Cage animation after collision is missing
+[] The Player and Zombie animation after collision is missing
 [] The Game is not complete
