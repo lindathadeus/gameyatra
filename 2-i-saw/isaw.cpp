@@ -20,6 +20,13 @@ typedef struct Cage {
     float height;
 } Cage;
 
+// Platform structure
+typedef struct Platform {
+	Vector2 position;
+	float width;
+	float height;
+};
+
 // Function to check if two positions are within a threshold
 bool IsWithinThreshold(Vector2 pos1, Vector2 pos2, float threshold) {
     return Vector2Distance(pos1, pos2) <= threshold;
@@ -64,6 +71,10 @@ void DrawCage(Cage cage, int barCount, Color color) {
     DrawRectangle(cage.position.x, cage.position.y + cage.height - barWidth, cage.width, barWidth, color); // Bottom
 }
 
+void DrawPlatform(Platform P, Color color) {
+	DrawRectangle(P.position.x, P.position.y, P.width, P.height, color);
+}
+
 // Additional variables for the falling animation
 float fallTimer = 0.0f;    // Tracks time for falling animation
 bool isFalling = false;    // Indicates if the player is in the falling state
@@ -89,18 +100,21 @@ void DrawRotatedEntity(Entity entity, float angle, Color headColor, Color bodyCo
 int main() {
     // Initialize the window
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Zombie Love");
-    SetTargetFPS(60);
+    SetTargetFPS(50);
 
     // Player setup
-    Entity player = {{400, 300}, 10.0f, 20.0f, 40.0f};
+    Entity player = {{400, 400}, 10.0f, 20.0f, 40.0f};
 
     // Zombie setup
-    Entity zombie = {{200, 300}, 10.0f, 20.0f, 40.0f};
+    Entity zombie = {{200, 400}, 10.0f, 20.0f, 40.0f};
     const float zombieSpeed = 2.0f;
     const float followThreshold = 150.0f;
 
     // Cage setup
-    Cage cage = {{600, 100}, 100, 150}; // Wider cage for visual improvement
+    Cage cage = {{600, 300}, 100, 150}; // Wider cage for visual improvement
+
+    // Platform setup
+    Platform platform {{50, 450}, 700, 30};
 
     // Game variables
     int level = 1;
@@ -191,6 +205,9 @@ int main() {
 
             // Draw cage
             DrawCage(cage, 5, DARKGRAY); // 5 bars for the cage
+
+	    //Draw Platform
+	    DrawPlatform(platform, BROWN);
         } else {
             // Display Game Over screen
             DrawText("Press R to Restart", SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2, 20, DARKGRAY);
