@@ -15,3 +15,4 @@
 [] The player and the zombie are not stopping at the canvas (screen)
 [] The player and the zombie are going below the platform
 [] The Cage animation after collision is missing
+[] The Game is not complete
