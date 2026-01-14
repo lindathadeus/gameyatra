@@ -117,6 +117,7 @@ int main() {
 				    	zombie.position = Vector2Add(zombie.position, Vector2Scale(Vector2Normalize(direction), zombieSpeed));
 				} else {
 					zombie.position.x = cage.position.x + cage.width / 2;
+					player.position.x = cage.position.x - cage.width / 4;
 				}
 			}			
 		}
