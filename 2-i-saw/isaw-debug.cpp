@@ -1,6 +1,10 @@
 #include "raylib.h"
 #include "raymath.h"
 
+// Screen dimensions
+//#define SCREEN_WIDTH 2560
+//#define SCREEN_HEIGHT 1600
+
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
 
@@ -53,6 +57,8 @@ void DrawRotatedEntity(Entity entity, float angle, Color headColor, Color bodyCo
         entity.position.y + entity.radius
     };
     DrawCircleV(headPos, entity.radius, headColor);
+
+DrawText(TextFormat("Player Pos: %.2f, %.2f, %.2f, %.2f", entity.position.x, entity.position.y, headPos.x, headPos.y), 10, 70, 20, ORANGE);
 }
 
 // Function to draw a cage with vertical bars
@@ -170,6 +176,11 @@ int main() {
 
 			// Draw Platform
 			DrawPlatform(platform, BROWN);
+
+DrawText(TextFormat("Zombie Pos: %.2f, %.2f", zombie.position.x, zombie.position.y), 10, 10, 20, PINK);
+DrawText(TextFormat("Player Pos: %.2f, %.2f", player.position.x, player.position.y), 10, 30, 20, BLACK);
+DrawText(TextFormat("In Cage: %s", IsEntityInCage(zombie, cage) ? "YES" : "NO"), 10, 50, 20, RED);
+
 		}
 
 		EndDrawing();
