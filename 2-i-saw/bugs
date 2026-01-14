@@ -16,4 +16,5 @@
 [] The player and the zombie are going below the platform
 [X] The Cage animation after collision is missing
 [] The Player and Zombie animation after collision is missing
+[X] optional, The Player and Zombie teleporting after collision is missing
 [] The Game is not complete
