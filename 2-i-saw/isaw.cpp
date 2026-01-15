@@ -144,13 +144,7 @@ int main() {
 
 			// Did Zombie hug?
 			didZombieHug = IsCollision(player, zombie);
-
-			// Player falls down if zombie hugs
-			// not working :/
-			if (didZombieHug) {
-				rotationAngle = 90.0f;
-			}
-		}
+			
 		//Drawing
 		BeginDrawing();
 		ClearBackground(RAYWHITE);
