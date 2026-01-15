@@ -19,8 +19,8 @@
 [] The Player and Zombie animation after collision is missing
 [X] optional, The Player and Zombie teleporting after collision is missing
 [] No facility for adding levels and more objects
-[] Separate the Game logic from rendering and other systems
-[] Convert the boolean flags into simple ENUM game states
+[X] Separate the Game logic from rendering and other systems
+[X] Convert the boolean flags into simple ENUM game states
 [] The Game is not complete
 
 # --- Architecture / Design Bugs (emerging) ---

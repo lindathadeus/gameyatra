@@ -26,6 +26,18 @@ typedef struct Platform {
         float height;
 };
 
+enum class ZombieState {
+	//idle,
+	Chasing,
+	InCage
+};
+
+enum class PlayerState {
+	Hugged,
+	SafeDistant,
+	TrulySafe
+};
+
 // Updated drawing function for entities
 void DrawEntity(Entity entity, Color headColor, Color bodyColor) {
     // Draw body (rectangle)
@@ -102,6 +114,28 @@ bool canMove(Entity player, float delta_x) {
 	return (new_position > 0) && (new_position < SCREEN_WIDTH);
 }
 
+// Update player position as per the key pressed
+void movePlayer(Entity* player, const float playerSpeed) {
+	// Player movement
+	if (IsKeyDown(KEY_RIGHT)) if (canMove(*player, playerSpeed)) player->position.x += playerSpeed;
+	if (IsKeyDown(KEY_LEFT)) if (canMove(*player, -playerSpeed)) player->position.x -= playerSpeed;
+}
+
+// Update zombie position as per the player's position based on a threshold
+void moveZombie(Entity* zombie, Entity* player, Cage* cage, ZombieState zombieState, const float zombieSpeed, const float followThreshold) {
+	//zombie will chase the player and also gets caught in the cage
+	if (IsWithinThreshold(player->position, zombie->position, followThreshold)) {
+		if (zombieState == ZombieState::Chasing) {
+			Vector2 direction = Vector2Subtract(player->position, zombie->position);
+			zombie->position = Vector2Add(zombie->position, Vector2Scale(Vector2Normalize(direction), zombieSpeed)); 
+		} else if (zombieState == ZombieState::InCage) {
+			zombie->position.x = cage->position.x + cage->width / 2;
+			//player.position.x = cage.position.x - cage.width / 4;
+		}
+	}
+
+}
+
 int main() {
 	//initialize the window
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Zombie Love");
@@ -109,6 +143,7 @@ int main() {
 
 	// Player Setup
 	Entity player = {{400, 400}, 10.0f, 20.0f, 40.0f};
+	const float playerSpeed = 4.0f;
 
 	// Zombie Setup
 	Entity zombie = {{200, 400}, 10.0f, 20.0f, 40.0f};
@@ -123,33 +158,26 @@ int main() {
 
 	// Game Variables
 	bool gameOver = false;
-	bool isZombieSafe = false;
-	bool didZombieHug = false;
 
 	while (!WindowShouldClose()) {
 		
+		PlayerState playerState ;
+		ZombieState zombieState ;
 		//Game Logic
 		if(!gameOver) {
 			// Player movement
-			if (IsKeyDown(KEY_RIGHT)) if (canMove(player, 4.0f)) player.position.x += 4.0f;
-			if (IsKeyDown(KEY_LEFT)) if (canMove(player, -4.0f)) player.position.x -= 4.0f;
+			movePlayer(&player, playerSpeed);	
 			
-			// Is Zombie safe?
-			isZombieSafe = IsEntityInCage(zombie, cage);
+			zombieState =
+    				IsEntityInCage(zombie, cage) ? ZombieState::InCage
+                                 			: ZombieState::Chasing;
 
 			// Zombie movement
-			if (IsWithinThreshold(player.position, zombie.position, followThreshold)) {
-				if (!isZombieSafe) {
-				    	Vector2 direction = Vector2Subtract(player.position, zombie.position);
-				    	zombie.position = Vector2Add(zombie.position, Vector2Scale(Vector2Normalize(direction), zombieSpeed));
-				} else {
-					zombie.position.x = cage.position.x + cage.width / 2;
-					player.position.x = cage.position.x - cage.width / 4;
-				}
-			}
+			moveZombie(&zombie, &player, &cage, zombieState, zombieSpeed, followThreshold);
 
 			// Did Zombie hug?
-			didZombieHug = IsCollision(player, zombie);
+			playerState =
+				IsCollision(player, zombie) ? PlayerState::Hugged : PlayerState::SafeDistant;
 		}
 			
 		//Drawing
@@ -158,7 +186,7 @@ int main() {
 
 		if (!gameOver) {
 			// Draw Player
-			if (!didZombieHug) DrawEntity(player, BLACK, BLACK);
+			if (playerState != PlayerState::Hugged) DrawEntity(player, BLACK, BLACK);
 			else {
 				DrawRotatedEntity(player, rotationAngle, BLACK, BLACK);
 				//gameOver = true;
@@ -167,7 +195,7 @@ int main() {
 			DrawEntity(zombie, PINK, PINK);
 
 			// Draw Cage
-			DrawCage(cage, isZombieSafe, 5, DARKGRAY);
+			DrawCage(cage, zombieState == ZombieState::InCage, 5, DARKGRAY);
 
 			// Draw Platform
 			DrawPlatform(platform, BROWN);
