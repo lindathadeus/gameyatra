@@ -12,7 +12,7 @@
 [X] There is no platform in the game
 [X] The player and the zombie are not strictly left and right moving
 [] The player and the zombie are not jumping upwards
-[] The player and the zombie are not stopping at the canvas (screen)
+[X] The player and the zombie are not stopping at the canvas (screen)
 [] The player and the zombie are going below the platform
 [X] The Cage animation after collision is missing
 [] The Player and Zombie animation after collision is missing

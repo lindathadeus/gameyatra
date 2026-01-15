@@ -96,6 +96,12 @@ bool IsCollision(Entity entity1, Entity entity2) {
 	return Vector2Distance(entity1.position, entity2.position) <= (entity1.radius + entity2.radius);
 }
 
+// Function to check if the entity can move
+bool canMove(Entity player, float delta_x) {
+	float new_position = player.position.x + delta_x;
+	return (new_position > 0) && (new_position < SCREEN_WIDTH);
+}
+
 int main() {
 	//initialize the window
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Zombie Love");
@@ -125,8 +131,8 @@ int main() {
 		//Game Logic
 		if(!gameOver) {
 			// Player movement
-			if (IsKeyDown(KEY_RIGHT)) player.position.x += 4.0f;
-			if (IsKeyDown(KEY_LEFT)) player.position.x -= 4.0f;
+			if (IsKeyDown(KEY_RIGHT)) if (canMove(player, 4.0f)) player.position.x += 4.0f;
+			if (IsKeyDown(KEY_LEFT)) if (canMove(player, -4.0f)) player.position.x -= 4.0f;
 			
 			// Is Zombie safe?
 			isZombieSafe = IsEntityInCage(zombie, cage);
@@ -144,6 +150,7 @@ int main() {
 
 			// Did Zombie hug?
 			didZombieHug = IsCollision(player, zombie);
+		}
 			
 		//Drawing
 		BeginDrawing();
