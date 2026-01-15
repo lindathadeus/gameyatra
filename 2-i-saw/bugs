@@ -1,10 +1,10 @@
-#The GOAL of the project is to clone the game, "I saw her standing there",
-#whenever we see a feature-mismatch between the two, we can treat it
-#as a bug and work on fixing the bug.
+# The GOAL of the project is to clone the game, "I saw her standing there",
+# whenever we see a feature-mismatch between the two, we can treat it
+# as a bug and work on fixing the bug.
 #
-#Below is a list of bugs, not exhaustive 
-#(and probably ever growing as per the onlooker)
-#After finishing each bug, we can put a cross in the box
+# Below is a list of bugs, not exhaustive 
+# (and probably ever growing as per the onlooker)
+# After finishing a bug, we can put an X in the [].
 
 [X] The project is not yet compiling in opensuse
 [X] The name of the broken player is not zombie
@@ -12,9 +12,19 @@
 [X] There is no platform in the game
 [X] The player and the zombie are not strictly left and right moving
 [] The player and the zombie are not jumping upwards
+[] Convert Hardcodes to proper names
 [X] The player and the zombie are not stopping at the canvas (screen)
 [] The player and the zombie are going below the platform
 [X] The Cage animation after collision is missing
 [] The Player and Zombie animation after collision is missing
 [X] optional, The Player and Zombie teleporting after collision is missing
+[] No facility for adding levels and more objects
+[] Separate the Game logic from rendering and other systems
+[] Convert the boolean flags into simple ENUM game states
 [] The Game is not complete
+
+# --- Architecture / Design Bugs (emerging) ---
+[] Entity position semantics (head vs body vs center) are inconsistent
+[] Rendering code mutates or implies gameplay state (animation vs logic)
+[] Collision logic is inconsistent across entities and world objects
+[] Entity data is passed by value instead of by ownership intent (const / mut)
