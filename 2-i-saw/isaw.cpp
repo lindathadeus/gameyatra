@@ -46,7 +46,7 @@ typedef struct Narrative {
 } Narrative; 
 
 void InitNarrative(Narrative* nr) {
-    nr->entries[0] = "I loved her but she was a zombie. So I put her safe in a cage.";
+    nr->entries[0] = "I saw her standing there but she was a zombie, So I put her in a cage.";
     nr->entries[1] = "I knew she loved me too, because she always tried to hug me.";
     nr->entries[2] = "Sometimes, the cage was hard to reach.";
     nr->selectedIndex = 0;
@@ -179,7 +179,7 @@ void InitLevel(Level* level) {
     level->cage   = {{600, 300}, 100, 150};
     level->platform = {{50, 450}, 700, 30};
 	
-    level->levelNarrative = "I loved her but she was a zombie, So I put her in a ";
+    level->levelNarrative = "I saw her standing there but she was a zombie, So I put her in a cage";
 
     level->gameOver = false;
     level->playerState = PlayerState::SafeDistant;
