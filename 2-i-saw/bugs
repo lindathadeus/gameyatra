@@ -22,6 +22,7 @@
 [X] Separate the Game logic from rendering and other systems
 [X] Convert the boolean flags into simple ENUM game states
 [X] Game menu screen is missing
+[X] Level Narrative is missing
 [] The Game is not complete
 
 # --- Architecture / Design Bugs (emerging) ---

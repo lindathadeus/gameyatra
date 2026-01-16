@@ -38,17 +38,37 @@ enum class PlayerState {
 	SafeDistant
 };
 
+#define NARRATIVE_COUNT 3
+
+typedef struct Narrative {
+    const char* entries[NARRATIVE_COUNT];
+    int selectedIndex;
+} Narrative; 
+
+void InitNarrative(Narrative* nr) {
+    nr->entries[0] = "I loved her but she was a zombie. So I put her safe in a cage.";
+    nr->entries[1] = "I knew she loved me too, because she always tried to hug me.";
+    nr->entries[2] = "Sometimes, the cage was hard to reach.";
+    nr->selectedIndex = 0;
+}
+
+void DrawNarrative(const Narrative* nr, int i) {
+        DrawText(nr->entries[i], 10, 10, 20, DARKGRAY);
+}
+
 // Level for holding all the above objects
 typedef struct Level {
 	Entity player;
 	Entity zombie;
 	Cage cage;
 	Platform platform;
+	const char* levelNarrative = "";
 
 	PlayerState playerState;
 	ZombieState zombieState;
 
 	bool gameOver;
+	unsigned int level_id = 0;
 } Level;
 
 typedef struct LevelManager {
@@ -158,6 +178,8 @@ void InitLevel(Level* level) {
     level->zombie = {{200, 400}, 10, 20, 40};
     level->cage   = {{600, 300}, 100, 150};
     level->platform = {{50, 450}, 700, 30};
+	
+    level->levelNarrative = "I loved her but she was a zombie, So I put her in a ";
 
     level->gameOver = false;
     level->playerState = PlayerState::SafeDistant;
@@ -187,7 +209,7 @@ void UpdateLevel(Level* level) {
         : PlayerState::SafeDistant;
 }
 
-void DrawLevel(Level* level) {
+void DrawLevel(Level* level, Narrative* nr) {
     if (level->playerState == PlayerState::Hugged)
         DrawRotatedEntity(level->player, BLACK, BLACK);
     else
@@ -196,6 +218,7 @@ void DrawLevel(Level* level) {
     DrawEntity(level->zombie, PINK, PINK);
     DrawCage(level->cage, level->zombieState == ZombieState::InCage, 5, DARKGRAY);
     DrawPlatform(level->platform, BROWN);
+    DrawNarrative(nr, level->level_id);
 }
 
 // Game Menu
@@ -261,8 +284,11 @@ int main() {
 	// Level Setup
 	LevelManager levelManager;
 	Menu menu;
+	Narrative nr;
+
 	InitLevel(&levelManager.currentLevel);
 	InitMenu(&menu);
+	InitNarrative(&nr);
 
 	GameState gameState = GameState::Menu;
 
@@ -288,7 +314,7 @@ int main() {
 				break;
 
 			case GameState::Playing:
-				DrawLevel(&levelManager.currentLevel);
+				DrawLevel(&levelManager.currentLevel, &nr);
 				break;
 
 			default:
