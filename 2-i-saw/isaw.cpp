@@ -48,7 +48,7 @@ typedef struct Level {
 	PlayerState playerState;
 	ZombieState zombieState;
 
-	bool gameOVer;
+	bool gameOver;
 } Level;
 
 typedef struct LevelManager {
@@ -135,7 +135,7 @@ void UpdatePlayer(Entity* player, const float playerSpeed) {
 }
 
 // Update zombie position as per the player's position based on a threshold
-void Updatezombie(Entity* zombie, Entity* player, Cage* cage, ZombieState zombieState, const float zombieSpeed, const float followThreshold) {
+void UpdateZombie(Entity* zombie, Entity* player, Cage* cage, ZombieState zombieState, const float zombieSpeed, const float followThreshold) {
 	//zombie will chase the player and also gets caught in the cage
 	if (IsWithinThreshold(player->position, zombie->position, followThreshold)) {
 		if (zombieState == ZombieState::Chasing) {
@@ -148,31 +148,65 @@ void Updatezombie(Entity* zombie, Entity* player, Cage* cage, ZombieState zombie
 	}
 }
 
+// Level infra
+// =======================================================
+// Level Lifecycle
+// =======================================================
+
+void InitLevel(Level* level) {
+    level->player = {{400, 400}, 10, 20, 40};
+    level->zombie = {{200, 400}, 10, 20, 40};
+    level->cage   = {{600, 300}, 100, 150};
+    level->platform = {{50, 450}, 700, 30};
+
+    level->gameOver = false;
+    level->playerState = PlayerState::SafeDistant;
+    level->zombieState = ZombieState::Chasing;
+}
+
+void UpdateLevel(Level* level) {
+    if (level->gameOver) return;
+
+    UpdatePlayer(&level->player, 4.0f);
+
+    level->zombieState =
+        IsEntityInCage(level->zombie, level->cage)
+        ? ZombieState::InCage
+        : ZombieState::Chasing;
+
+    UpdateZombie(&level->zombie,
+                 &level->player,
+                 &level->cage,
+                 level->zombieState,
+                 2.0f,
+                 150.0f);
+        
+    level->playerState =
+        IsCollision(level->player, level->zombie)
+        ? PlayerState::Hugged
+        : PlayerState::SafeDistant;
+}
+
+void DrawLevel(Level* level) {
+    if (level->playerState == PlayerState::Hugged)
+        DrawRotatedEntity(level->player, BLACK, BLACK);
+    else
+        DrawEntity(level->player, BLACK, BLACK);
+
+    DrawEntity(level->zombie, PINK, PINK);
+    DrawCage(level->cage, level->zombieState == ZombieState::InCage, 5, DARKGRAY);
+    DrawPlatform(level->platform, BROWN);
+}
+
+// Game Loop
 int main() {
 	//initialize the window
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Zombie Love");
 	SetTargetFPS(70);
 
-	// Player Setup
-	Entity player = {{400, 400}, 10.0f, 20.0f, 40.0f};
-	const float playerSpeed = 4.0f;
-
-	// Zombie Setup
-	Entity zombie = {{200, 400}, 10.0f, 20.0f, 40.0f};
-	const float zombieSpeed = 2.0f;
-	const float followThreshold = 150.0f;
-	
-	PlayerState playerState;
-	ZombieState zombieState;
-
-	// Cage Setup
-	Cage cage = {{600, 300}, 100, 150};
-
-	// Platform Setup
-	Platform platform = {{50, 450}, 700, 30};
-
-
 	// Level Setup
+	LevelManager levelManager;
+	InitLevel(&levelManager.currentLevel);
 
 	// Game Variables
 	bool gameOver = false;
@@ -180,19 +214,7 @@ int main() {
 	while (!WindowShouldClose()) {
 		//Game Logic
 		if(!gameOver) {
-			// Player movement
-			UpdatePlayer(&player, playerSpeed);	
-			
-			zombieState =
-    				IsEntityInCage(zombie, cage) ? ZombieState::InCage
-                                 			: ZombieState::Chasing;
-
-			// Zombie movement
-			Updatezombie(&zombie, &player, &cage, zombieState, zombieSpeed, followThreshold);
-
-			// Did Zombie hug?
-			playerState =
-				IsCollision(player, zombie) ? PlayerState::Hugged : PlayerState::SafeDistant;
+			UpdateLevel(&levelManager.currentLevel);	
 		}
 			
 		//Drawing
@@ -200,20 +222,8 @@ int main() {
 		ClearBackground(RAYWHITE);
 
 		if (!gameOver) {
-			// Draw Player
-			if (playerState != PlayerState::Hugged) DrawEntity(player, BLACK, BLACK);
-			else {
-				DrawRotatedEntity(player, BLACK, BLACK);
-				//gameOver = true;
-			}
-			// Draw Zombie
-			DrawEntity(zombie, PINK, PINK);
-
-			// Draw Cage
-			DrawCage(cage, zombieState == ZombieState::InCage, 5, DARKGRAY);
-
-			// Draw Platform
-			DrawPlatform(platform, BROWN);
+			// Draw Level
+			DrawLevel(&levelManager.currentLevel);
 		}
 
 		EndDrawing();
