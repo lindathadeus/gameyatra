@@ -198,6 +198,60 @@ void DrawLevel(Level* level) {
     DrawPlatform(level->platform, BROWN);
 }
 
+// Game Menu
+#define MENU_ITEM_COUNT 3
+
+typedef struct Menu {
+    const char* entries[MENU_ITEM_COUNT];
+    int selectedIndex;
+} Menu;
+
+void InitMenu(Menu* menu) { 
+    menu->entries[0] = "Start Game";
+    menu->entries[1] = "Select Level";
+    menu->entries[2] = "Exit";
+    menu->selectedIndex = 0;
+}
+
+
+enum class GameState {
+    Menu,
+    Playing,
+    Exit
+};
+
+GameState UpdateMenu(Menu* menu) {
+    if (IsKeyPressed(KEY_DOWN)) {
+        menu->selectedIndex++;
+        if (menu->selectedIndex >= MENU_ITEM_COUNT)
+            menu->selectedIndex = 0;
+    }
+
+    if (IsKeyPressed(KEY_UP)) {
+        menu->selectedIndex--;
+        if (menu->selectedIndex < 0)
+            menu->selectedIndex = MENU_ITEM_COUNT - 1;
+    }
+
+    if (IsKeyPressed(KEY_ENTER)) {
+        switch (menu->selectedIndex) {
+            case 0: return GameState::Playing;
+            case 2: return GameState::Exit;
+        }
+    }
+    return GameState::Menu;
+}
+
+void DrawMenu(const Menu* menu) {
+    DrawText("Zombie", 250, 50, 40, BLACK);
+    DrawText("Love",   390, 50, 40, PINK);
+
+    for (int i = 0; i < MENU_ITEM_COUNT; i++) {
+        Color color = (i == menu->selectedIndex) ? PINK : BLACK;
+        DrawText(menu->entries[i], 150, 230 + i * 40, 30, color);
+    }
+}
+
 // Game Loop
 int main() {
 	//initialize the window
@@ -206,26 +260,42 @@ int main() {
 
 	// Level Setup
 	LevelManager levelManager;
+	Menu menu;
 	InitLevel(&levelManager.currentLevel);
+	InitMenu(&menu);
 
-	// Game Variables
-	bool gameOver = false;
+	GameState gameState = GameState::Menu;
 
-	while (!WindowShouldClose()) {
+	while (!WindowShouldClose() && (gameState != GameState::Exit)) {
 		//Game Logic
-		if(!gameOver) {
-			UpdateLevel(&levelManager.currentLevel);	
-		}
+    		switch (gameState) {
+        		case GameState::Menu:
+            			gameState = UpdateMenu(&menu);
+            			break;
+        		case GameState::Playing:
+            			UpdateLevel(&levelManager.currentLevel);
+            			break;
+        		default: break;
+    		}
 			
 		//Drawing
 		BeginDrawing();
 		ClearBackground(RAYWHITE);
 
-		if (!gameOver) {
-			// Draw Level
-			DrawLevel(&levelManager.currentLevel);
-		}
+		switch (gameState) {
+			case GameState::Menu:
+				DrawMenu(&menu);
+				break;
 
+			case GameState::Playing:
+				DrawLevel(&levelManager.currentLevel);
+				break;
+
+			default:
+				DrawMenu(&menu);
+				break;
+		}
+		
 		EndDrawing();
 	}
 
