@@ -60,8 +60,10 @@ void DrawNarrative(const Narrative* nr, int i) {
 typedef struct Level {
 	Entity player;
 	Entity zombie;
+	Entity enemyZombies[3];
 	Cage cage;
-	Platform platform;
+	Platform platform[3];
+	unsigned int platform_count = 1;
 	const char* levelNarrative = "";
 
 	PlayerState playerState;
@@ -86,8 +88,7 @@ void DrawEntity(Entity entity, Color headColor, Color bodyColor) {
 }
 
 // Function to draw a rotated entity during the fall animation
-void DrawRotatedEntity(Entity entity, Color headColor, Color bodyColor)
-{
+void DrawRotatedEntity(Entity entity, Color headColor, Color bodyColor) {
 	entity.position.x = entity.position.x - entity.bodyHeight - 3*entity.radius;
 	entity.position.y = entity.position.y + 3*entity.radius;
     // Draw body (rectangle)
@@ -177,7 +178,10 @@ void InitLevel(Level* level) {
     level->player = {{400, 400}, 10, 20, 40};
     level->zombie = {{200, 400}, 10, 20, 40};
     level->cage   = {{600, 300}, 100, 150};
-    level->platform = {{50, 450}, 700, 30};
+
+    level->platform_count = 1;
+    
+    level->platform[0] = {{50, 450}, 700, 30};
 	
     level->levelNarrative = "I saw her standing there but she was a zombie, So I put her in a cage";
 
@@ -207,6 +211,9 @@ void UpdateLevel(Level* level) {
         IsCollision(level->player, level->zombie)
         ? PlayerState::Hugged
         : PlayerState::SafeDistant;
+   
+    // Level progression 
+    if (level->zombieState == ZombieState::InCage) if ((level->level_id + 1) < NARRATIVE_COUNT) level->level_id++; 
 }
 
 void DrawLevel(Level* level, Narrative* nr) {
@@ -217,7 +224,8 @@ void DrawLevel(Level* level, Narrative* nr) {
 
     DrawEntity(level->zombie, PINK, PINK);
     DrawCage(level->cage, level->zombieState == ZombieState::InCage, 5, DARKGRAY);
-    DrawPlatform(level->platform, BROWN);
+    for (int i = 0; i < level->platform_count; i++)
+        DrawPlatform(level->platform[i], BROWN);
     DrawNarrative(nr, level->level_id);
 }
 
@@ -235,7 +243,6 @@ void InitMenu(Menu* menu) {
     menu->entries[2] = "Exit";
     menu->selectedIndex = 0;
 }
-
 
 enum class GameState {
     Menu,
@@ -303,7 +310,7 @@ int main() {
             			break;
         		default: break;
     		}
-			
+
 		//Drawing
 		BeginDrawing();
 		ClearBackground(RAYWHITE);

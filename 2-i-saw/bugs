@@ -23,6 +23,7 @@
 [X] Convert the boolean flags into simple ENUM game states
 [X] Game menu screen is missing
 [X] Level Narrative is missing
+[X] Facility for elevated platforms for jumping is missing
 [] The Game is not complete
 
 # --- Architecture / Design Bugs (emerging) ---
