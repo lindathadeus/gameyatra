@@ -59,8 +59,11 @@ void DrawNarrative(const Narrative* nr, int i) {
 // Level for holding all the above objects
 typedef struct Level {
 	Entity player;
+	int playerSpeed;
 	Entity zombie;
+	int zombieSpeed;
 	Entity enemyZombies[3];
+	int enemySpeeds[3];
 	Cage cage;
 	Platform platform[3];
 	unsigned int platform_count = 1;
@@ -70,6 +73,7 @@ typedef struct Level {
 	ZombieState zombieState;
 
 	bool gameOver;
+	bool gameComplete;
 	unsigned int level_id = 0;
 } Level;
 
@@ -192,8 +196,9 @@ void InitLevel(Level* level) {
 
 void UpdateLevel(Level* level) {
     if (level->gameOver) return;
+    level->playerSpeed = level->gameComplete ? 0 : 4.0f;
 
-    UpdatePlayer(&level->player, 4.0f);
+    UpdatePlayer(&level->player, level->playerSpeed);
 
     level->zombieState =
         IsEntityInCage(level->zombie, level->cage)
@@ -214,6 +219,14 @@ void UpdateLevel(Level* level) {
    
     // Level progression 
     if (level->zombieState == ZombieState::InCage) if ((level->level_id + 1) < NARRATIVE_COUNT) level->level_id++; 
+    
+
+    // Game exits because the player is hugged
+    level->gameOver = (level->playerState == PlayerState::Hugged);
+
+    // Game completes because the zombie is in cage
+    level->gameComplete = (level->zombieState == ZombieState::InCage);
+
 }
 
 void DrawLevel(Level* level, Narrative* nr) {

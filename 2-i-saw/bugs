@@ -24,7 +24,12 @@
 [X] Game menu screen is missing
 [X] Level Narrative is missing
 [X] Facility for elevated platforms for jumping is missing
+[X] The Game is not exiting on collision between the player and the zombie
+[X] The player is not stopping movement on collision between the cage and the zombie
 [] The Game is not complete
+
+# --- Coding Bugs (emerging) ---
+[] Anchor inconsistency in DrawCage
 
 # --- Architecture / Design Bugs (emerging) ---
 [] Entity position semantics (head vs body vs center) are inconsistent
