@@ -227,6 +227,8 @@ void UpdateLevel(Level* level) {
     // Game completes because the zombie is in cage
     level->gameComplete = (level->zombieState == ZombieState::InCage);
 
+    // if the level is complete, then 
+
 }
 
 void DrawLevel(Level* level, Narrative* nr) {
