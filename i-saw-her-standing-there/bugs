@@ -28,6 +28,7 @@
 [X] The player is not stopping movement on collision between the cage and the zombie
 [] The player is not falling down the ground platform, once, he crosses it
 [] The player also gets locked up with the zombie in the cage on collision
+[X] The level selector screen is missing
 [] The Game is not complete
 
 # --- Coding Bugs (emerging) ---

@@ -1,5 +1,6 @@
 #include "raylib.h"
 #include "raymath.h"
+#include "string.h"
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
@@ -80,6 +81,50 @@ typedef struct Level {
 typedef struct LevelManager {
 	Level currentLevel;
 } LevelManager;
+
+#define LEVELS_COUNT NARRATIVE_COUNT
+
+unsigned int SelectLevel(Narrative* nr) {
+    if (IsKeyPressed(KEY_DOWN)) {
+        nr->selectedIndex = (nr->selectedIndex + 1) % LEVELS_COUNT;
+    }
+    if (IsKeyPressed(KEY_UP)) {
+        nr->selectedIndex--;
+        if (nr->selectedIndex < 0)
+            nr->selectedIndex = LEVELS_COUNT - 1;
+    }
+    if (IsKeyPressed(KEY_ENTER)) {
+        return nr->selectedIndex + 1; // valid selection
+    }
+    return 0; // no selection
+}
+
+void TruncateText(const char* src, char* dst, int maxLen) {
+    int len = strlen(src);
+
+    if (len <= maxLen) {
+        strcpy(dst, src);
+        return;
+    }
+
+    strncpy(dst, src, maxLen - 3);
+    dst[maxLen - 3] = '\0';
+    strcat(dst, "...");
+}
+
+void DrawLevels(const Narrative* nr) {
+    DrawText("Levels", 250, 50, 40, BLACK);
+    DrawText("Selection", 390, 50, 40, PINK);
+
+    char buffer[30];
+    const int MAX_CHARS = 29;
+
+    for (int i = 0; i < LEVELS_COUNT; i++) {
+        Color color = (i == nr->selectedIndex) ? PINK : BLACK;
+	TruncateText(nr->entries[i], buffer, MAX_CHARS);
+        DrawText(buffer, 150, 230 + i * 40, 30, color);
+    }
+}
 
 // Updated drawing function for entities
 void DrawEntity(Entity entity, Color headColor, Color bodyColor) {
@@ -261,6 +306,7 @@ void InitMenu(Menu* menu) {
 
 enum class GameState {
     Menu,
+    LevelSelect,
     Playing,
     Exit
 };
@@ -281,6 +327,7 @@ GameState UpdateMenu(Menu* menu) {
     if (IsKeyPressed(KEY_ENTER)) {
         switch (menu->selectedIndex) {
             case 0: return GameState::Playing;
+            case 1: return GameState::LevelSelect;
             case 2: return GameState::Exit;
         }
     }
@@ -323,6 +370,15 @@ int main() {
         		case GameState::Playing:
             			UpdateLevel(&levelManager.currentLevel);
             			break;
+			case GameState::LevelSelect: {
+			    unsigned int chosen = SelectLevel(&nr);
+			    if (chosen > 0) {
+				levelManager.currentLevel.level_id = chosen - 1;
+				InitLevel(&levelManager.currentLevel);
+				gameState = GameState::Playing;
+			    }
+			    break;
+			}
         		default: break;
     		}
 
@@ -337,6 +393,10 @@ int main() {
 
 			case GameState::Playing:
 				DrawLevel(&levelManager.currentLevel, &nr);
+				break;
+
+			case GameState::LevelSelect:
+				DrawLevels(&nr);
 				break;
 
 			default:
