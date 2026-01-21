@@ -29,14 +29,14 @@ typedef struct Platform {
 
 // States for a Zombie Entity
 enum class ZombieState {
-	Chasing,
-	InCage
+        Chasing,
+        InCage
 };
 
 // States for a Player Entity
 enum class PlayerState {
-	Hugged,
-	SafeDistant
+        Hugged,
+        SafeDistant
 };
 
 #define NARRATIVE_COUNT 3
@@ -59,27 +59,27 @@ void DrawNarrative(const Narrative* nr, int i) {
 
 // Level for holding all the above objects
 typedef struct Level {
-	Entity player;
-	int playerSpeed;
-	Entity zombie;
-	int zombieSpeed;
-	Entity enemyZombies[3];
-	int enemySpeeds[3];
-	Cage cage;
-	Platform platform[3];
-	unsigned int platform_count = 1;
-	const char* levelNarrative = "";
+        Entity player;
+        int playerSpeed;
+        Entity zombie;
+        int zombieSpeed;
+        Entity enemyZombies[3];
+        int enemySpeeds[3];
+        Cage cage;
+        Platform platform[3];
+        unsigned int platform_count = 1;
+        const char* levelNarrative = "";
 
-	PlayerState playerState;
-	ZombieState zombieState;
+        PlayerState playerState;
+        ZombieState zombieState;
 
-	bool gameOver;
-	bool gameComplete;
-	unsigned int level_id = 0;
+        bool gameOver;
+        bool gameComplete;
+        unsigned int level_id = 0;
 } Level;
 
 typedef struct LevelManager {
-	Level currentLevel;
+        Level currentLevel;
 } LevelManager;
 
 #define LEVELS_COUNT NARRATIVE_COUNT
@@ -121,7 +121,7 @@ void DrawLevels(const Narrative* nr) {
 
     for (int i = 0; i < LEVELS_COUNT; i++) {
         Color color = (i == nr->selectedIndex) ? PINK : BLACK;
-	TruncateText(nr->entries[i], buffer, MAX_CHARS);
+        TruncateText(nr->entries[i], buffer, MAX_CHARS);
         DrawText(buffer, 150, 230 + i * 40, 30, color);
     }
 }
@@ -138,14 +138,14 @@ void DrawEntity(Entity entity, Color headColor, Color bodyColor) {
 
 // Function to draw a rotated entity during the fall animation
 void DrawRotatedEntity(Entity entity, Color headColor, Color bodyColor) {
-	entity.position.x = entity.position.x - entity.bodyHeight - 3*entity.radius;
-	entity.position.y = entity.position.y + 3*entity.radius;
+        entity.position.x = entity.position.x - entity.bodyHeight - 3*entity.radius;
+        entity.position.y = entity.position.y + 3*entity.radius;
     // Draw body (rectangle)
-	DrawRectangleV((Vector2) {entity.position.x, entity.position.y}, 
-	(Vector2){entity.bodyHeight, entity.bodyWidth}, bodyColor);
+        DrawRectangleV((Vector2) {entity.position.x, entity.position.y}, 
+        (Vector2){entity.bodyHeight, entity.bodyWidth}, bodyColor);
 
     // Draw head (circle)
-	Vector2 headPos = {
+        Vector2 headPos = {
         entity.position.x - entity.bodyHeight + 3*entity.radius,         
         entity.position.y + entity.radius
     };
@@ -188,34 +188,34 @@ bool IsWithinThreshold(Vector2 pos1, Vector2 pos2, float threshold) {
 
 // Function to check collision between two entities (circular collision)
 bool IsCollision(Entity entity1, Entity entity2) {
-	return Vector2Distance(entity1.position, entity2.position) <= (entity1.radius + entity2.radius);
+        return Vector2Distance(entity1.position, entity2.position) <= (entity1.radius + entity2.radius);
 }
 
 // Function to check if the entity can move
 bool CanMove(Entity player, float delta_x) {
-	float new_x = player.position.x + delta_x;
-	return (new_x > 0) && (new_x < SCREEN_WIDTH);
+        float new_x = player.position.x + delta_x;
+        return (new_x > 0) && (new_x < SCREEN_WIDTH);
 }
 
 // Update player position as per the key pressed
 void UpdatePlayer(Entity* player, const float playerSpeed) {
-	// Player movement
-	if (IsKeyDown(KEY_RIGHT)) if (CanMove(*player, playerSpeed)) player->position.x += playerSpeed;
-	if (IsKeyDown(KEY_LEFT)) if (CanMove(*player, -playerSpeed)) player->position.x -= playerSpeed;
+        // Player movement
+        if (IsKeyDown(KEY_RIGHT)) if (CanMove(*player, playerSpeed)) player->position.x += playerSpeed;
+        if (IsKeyDown(KEY_LEFT)) if (CanMove(*player, -playerSpeed)) player->position.x -= playerSpeed;
 }
 
 // Update zombie position as per the player's position based on a threshold
 void UpdateZombie(Entity* zombie, Entity* player, Cage* cage, ZombieState zombieState, const float zombieSpeed, const float followThreshold) {
-	//zombie will chase the player and also gets caught in the cage
-	if (IsWithinThreshold(player->position, zombie->position, followThreshold)) {
-		if (zombieState == ZombieState::Chasing) {
-			Vector2 direction = Vector2Subtract(player->position, zombie->position);
-			zombie->position = Vector2Add(zombie->position, Vector2Scale(Vector2Normalize(direction), zombieSpeed)); 
-		} else if (zombieState == ZombieState::InCage) {
-			zombie->position.x = cage->position.x + cage->width / 2;
-			//player.position.x = cage.position.x - cage.width / 4;
-		}
-	}
+        //zombie will chase the player and also gets caught in the cage
+        if (IsWithinThreshold(player->position, zombie->position, followThreshold)) {
+                if (zombieState == ZombieState::Chasing) {
+                        Vector2 direction = Vector2Subtract(player->position, zombie->position);
+                        zombie->position = Vector2Add(zombie->position, Vector2Scale(Vector2Normalize(direction), zombieSpeed)); 
+                } else if (zombieState == ZombieState::InCage) {
+                        zombie->position.x = cage->position.x + cage->width / 2;
+                        //player.position.x = cage.position.x - cage.width / 4;
+                }
+        }
 }
 
 // Level infra
@@ -231,7 +231,7 @@ void InitLevel(Level* level) {
     level->platform_count = 1;
     
     level->platform[0] = {{50, 450}, 700, 30};
-	
+        
     level->levelNarrative = "I saw her standing there but she was a zombie, So I put her in a cage";
 
     level->gameOver = false;
@@ -346,68 +346,68 @@ void DrawMenu(const Menu* menu) {
 
 // Game Loop
 int main() {
-	//initialize the window
-	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Zombie Love");
-	SetTargetFPS(70);
+        //initialize the window
+        InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Zombie Love");
+        SetTargetFPS(70);
 
-	// Level Setup
-	LevelManager levelManager;
-	Menu menu;
-	Narrative nr;
+        // Level Setup
+        LevelManager levelManager;
+        Menu menu;
+        Narrative nr;
 
-	InitLevel(&levelManager.currentLevel);
-	InitMenu(&menu);
-	InitNarrative(&nr);
+        InitLevel(&levelManager.currentLevel);
+        InitMenu(&menu);
+        InitNarrative(&nr);
 
-	GameState gameState = GameState::Menu;
+        GameState gameState = GameState::Menu;
 
-	while (!WindowShouldClose() && (gameState != GameState::Exit)) {
-		//Game Logic
-    		switch (gameState) {
-        		case GameState::Menu:
-            			gameState = UpdateMenu(&menu);
-            			break;
-        		case GameState::Playing:
-            			UpdateLevel(&levelManager.currentLevel);
-            			break;
-			case GameState::LevelSelect: {
-			    unsigned int chosen = SelectLevel(&nr);
-			    if (chosen > 0) {
-				levelManager.currentLevel.level_id = chosen - 1;
-				InitLevel(&levelManager.currentLevel);
-				gameState = GameState::Playing;
-			    }
-			    break;
-			}
-        		default: break;
-    		}
+        while (!WindowShouldClose() && (gameState != GameState::Exit)) {
+                //Game Logic
+                switch (gameState) {
+                        case GameState::Menu:
+                                gameState = UpdateMenu(&menu);
+                                break;
+                        case GameState::Playing:
+                                UpdateLevel(&levelManager.currentLevel);
+                                break;
+                        case GameState::LevelSelect: {
+                            unsigned int chosen = SelectLevel(&nr);
+                            if (chosen > 0) {
+                                levelManager.currentLevel.level_id = chosen - 1;
+                                InitLevel(&levelManager.currentLevel);
+                                gameState = GameState::Playing;
+                            }
+                            break;
+                        }
+                        default: break;
+                }
 
-		//Drawing
-		BeginDrawing();
-		ClearBackground(RAYWHITE);
+                //Drawing
+                BeginDrawing();
+                ClearBackground(RAYWHITE);
 
-		switch (gameState) {
-			case GameState::Menu:
-				DrawMenu(&menu);
-				break;
+                switch (gameState) {
+                        case GameState::Menu:
+                                DrawMenu(&menu);
+                                break;
 
-			case GameState::Playing:
-				DrawLevel(&levelManager.currentLevel, &nr);
-				break;
+                        case GameState::Playing:
+                                DrawLevel(&levelManager.currentLevel, &nr);
+                                break;
 
-			case GameState::LevelSelect:
-				DrawLevels(&nr);
-				break;
+                        case GameState::LevelSelect:
+                                DrawLevels(&nr);
+                                break;
 
-			default:
-				DrawMenu(&menu);
-				break;
-		}
-		
-		EndDrawing();
-	}
+                        default:
+                                DrawMenu(&menu);
+                                break;
+                }
+                
+                EndDrawing();
+        }
 
-	CloseWindow();
-	
-	return 0;
+        CloseWindow();
+        
+        return 0;
 }
