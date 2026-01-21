@@ -351,8 +351,6 @@ void DrawLevelOverlay(Level* level) {
     DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, Fade(BLACK, 0.5f));
 
     Color border = PINK;
-    Color selected = PINK;
-    Color normal = BLACK;
     Color messageColor = (level->overlay == LevelOverlay::Failed) ? BLACK : PINK;
 
     DrawRectangleLines(200, 180, 360, 190, border);
@@ -362,7 +360,7 @@ void DrawLevelOverlay(Level* level) {
 
     SelectOverlayMenu(&level->overlayMenu);
     for (int i = 0; i < OVERLAYMENU_COUNT; i++) {
-        Color c = (i == level->overlayMenu.selectedIndex) ? selected : normal;
+        Color c = (i == level->overlayMenu.selectedIndex) ? PINK : BLACK;
         DrawText(level->overlayMenu.entry[i], 320, 260 + i*30, 20, c);
     }
 }
