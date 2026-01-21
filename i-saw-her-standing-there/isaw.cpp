@@ -243,6 +243,17 @@ void InitLevel(Level* level) {
     level->overlay = LevelOverlay::None;
 }
 
+void UpdateLevelOverlay(Level* level) {
+    if (level->overlay != LevelOverlay::None)
+        return;
+
+    if (level->playerState == PlayerState::Hugged)
+        level->overlay = LevelOverlay::Failed;
+
+    else if (level->zombieState == ZombieState::InCage)
+        level->overlay = LevelOverlay::Completed;
+}
+
 void UpdateLevel(Level* level) {
     if (level->gameOver) return;
     level->playerSpeed = level->gameComplete ? 0 : 4.0f;
@@ -269,7 +280,6 @@ void UpdateLevel(Level* level) {
     // Level progression 
     if (level->zombieState == ZombieState::InCage) if ((level->level_id + 1) < NARRATIVE_COUNT) level->level_id++; 
     
-
     // Game exits because the player is hugged
     level->gameOver = (level->playerState == PlayerState::Hugged);
 
@@ -278,24 +288,7 @@ void UpdateLevel(Level* level) {
 
     // if the level is complete, then 
     // win / lose rules
-    if (level->playerState == PlayerState::Hugged) {
-        level->overlay = LevelOverlay::Failed;
-    }
-    else if (level->zombieState == ZombieState::InCage) {
-        level->overlay = LevelOverlay::Completed;
-    }
-
-}
-
-void UpdateLevelOverlay(Level* level) {
-    if (level->overlay != LevelOverlay::None)
-        return;
-
-    if (level->playerState == PlayerState::Hugged)
-        level->overlay = LevelOverlay::Failed;
-
-    else if (level->zombieState == ZombieState::InCage)
-        level->overlay = LevelOverlay::Completed;
+    UpdateLevelOverlay(level);
 }
 
 // drawing function for various level overlays
