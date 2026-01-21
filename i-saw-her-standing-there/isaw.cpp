@@ -59,6 +59,35 @@ void DrawNarrative(const Narrative* nr, int i) {
 
 enum class LevelOverlay { None, Paused, Completed, Failed };
 
+#define OVERLAYMENU_COUNT 3
+
+typedef struct overlayMenu {
+    const char* entry[OVERLAYMENU_COUNT];
+    int selectedIndex;
+} OverlayMenu;
+
+void initOverlayMenu(OverlayMenu *mn) {
+    mn->entry[0] = "Continue";
+    mn->entry[1] = "Retry";
+    mn->entry[2] = "Cancel";
+    mn->selectedIndex = 0;
+}
+
+unsigned int SelectOverlayMenu(OverlayMenu* nr) {
+    if (IsKeyPressed(KEY_DOWN)) {
+        nr->selectedIndex = (nr->selectedIndex + 1) %  OVERLAYMENU_COUNT;
+    }   
+    if (IsKeyPressed(KEY_UP)) {
+        nr->selectedIndex--;
+        if (nr->selectedIndex < 0)
+            nr->selectedIndex = OVERLAYMENU_COUNT - 1;
+    }   
+    if (IsKeyPressed(KEY_ENTER)) {
+        return nr->selectedIndex + 1; // valid selection
+    }   
+    return 0; // no selection
+}
+
 // Level for holding all the above objects
 typedef struct Level {
         Entity player;
@@ -72,6 +101,7 @@ typedef struct Level {
         unsigned int platform_count = 1;
         const char* levelNarrative = "";
         LevelOverlay overlay;
+        OverlayMenu overlayMenu;
 
         PlayerState playerState;
         ZombieState zombieState;
@@ -241,6 +271,17 @@ void InitLevel(Level* level) {
     level->playerState = PlayerState::SafeDistant;
     level->zombieState = ZombieState::Chasing;
     level->overlay = LevelOverlay::None;
+    initOverlayMenu(&level->overlayMenu);
+}
+
+//just skeleton
+void NextLevel() {
+
+}
+
+//just temp
+void RestartLevel(Level* level) {
+
 }
 
 void UpdateLevelOverlay(Level* level) {
@@ -252,6 +293,12 @@ void UpdateLevelOverlay(Level* level) {
 
     else if (level->zombieState == ZombieState::InCage)
         level->overlay = LevelOverlay::Completed;
+
+    unsigned int selected = SelectOverlayMenu(&level->overlayMenu);
+
+    if (selected == 1) NextLevel();
+    if (selected == 2) RestartLevel(level);
+    if (selected == 3) level->overlay = LevelOverlay::None;
 }
 
 void UpdateLevel(Level* level) {
@@ -298,13 +345,27 @@ void DrawLevelOverlay(Level* level) {
 
     const char* msg =
         (level->overlay == LevelOverlay::Failed)
-        ? "Level Failed!!! Zombie Hugged You"
-        : "Level Passed!!! Zombie is in the Cage";
+        ? "Level Failed!!!"
+        : "Level Passed!!!";
 
-    DrawRectangle(200, 200, 410, 100, WHITE);
-    DrawText(msg, 220, 240, 20, DARKGRAY);
+    DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, Fade(BLACK, 0.5f));
+
+    Color border = PINK;
+    Color selected = PINK;
+    Color normal = BLACK;
+    Color messageColor = (level->overlay == LevelOverlay::Failed) ? BLACK : PINK;
+
+    DrawRectangleLines(200, 180, 360, 190, border);
+    DrawRectangle(210, 190, 340, 170, WHITE);
+
+    DrawText(msg, 280, 210, 30, messageColor);
+
+    SelectOverlayMenu(&level->overlayMenu);
+    for (int i = 0; i < OVERLAYMENU_COUNT; i++) {
+        Color c = (i == level->overlayMenu.selectedIndex) ? selected : normal;
+        DrawText(level->overlayMenu.entry[i], 320, 260 + i*30, 20, c);
+    }
 }
-
 
 void DrawLevel(Level* level, Narrative* nr) {
     if (level->playerState == PlayerState::Hugged)
