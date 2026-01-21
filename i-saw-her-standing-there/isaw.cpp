@@ -57,6 +57,8 @@ void DrawNarrative(const Narrative* nr, int i) {
         DrawText(nr->entries[i], 10, 10, 20, DARKGRAY);
 }
 
+enum class LevelOverlay { None, Paused, Completed, Failed };
+
 // Level for holding all the above objects
 typedef struct Level {
         Entity player;
@@ -69,6 +71,7 @@ typedef struct Level {
         Platform platform[3];
         unsigned int platform_count = 1;
         const char* levelNarrative = "";
+        LevelOverlay overlay;
 
         PlayerState playerState;
         ZombieState zombieState;
@@ -237,6 +240,7 @@ void InitLevel(Level* level) {
     level->gameOver = false;
     level->playerState = PlayerState::SafeDistant;
     level->zombieState = ZombieState::Chasing;
+    level->overlay = LevelOverlay::None;
 }
 
 void UpdateLevel(Level* level) {
@@ -273,8 +277,41 @@ void UpdateLevel(Level* level) {
     level->gameComplete = (level->zombieState == ZombieState::InCage);
 
     // if the level is complete, then 
+    // win / lose rules
+    if (level->playerState == PlayerState::Hugged) {
+        level->overlay = LevelOverlay::Failed;
+    }
+    else if (level->zombieState == ZombieState::InCage) {
+        level->overlay = LevelOverlay::Completed;
+    }
 
 }
+
+void UpdateLevelOverlay(Level* level) {
+    if (level->overlay != LevelOverlay::None)
+        return;
+
+    if (level->playerState == PlayerState::Hugged)
+        level->overlay = LevelOverlay::Failed;
+
+    else if (level->zombieState == ZombieState::InCage)
+        level->overlay = LevelOverlay::Completed;
+}
+
+// drawing function for various level overlays
+void DrawLevelOverlay(Level* level) {
+    if (level->overlay == LevelOverlay::None)
+        return;
+
+    const char* msg =
+        (level->overlay == LevelOverlay::Failed)
+        ? "Level Failed!!! Zombie Hugged You"
+        : "Level Passed!!! Zombie is in the Cage";
+
+    DrawRectangle(200, 200, 410, 100, WHITE);
+    DrawText(msg, 220, 240, 20, DARKGRAY);
+}
+
 
 void DrawLevel(Level* level, Narrative* nr) {
     if (level->playerState == PlayerState::Hugged)
@@ -287,6 +324,7 @@ void DrawLevel(Level* level, Narrative* nr) {
     for (int i = 0; i < level->platform_count; i++)
         DrawPlatform(level->platform[i], BROWN);
     DrawNarrative(nr, level->level_id);
+    DrawLevelOverlay(level);
 }
 
 // Game Menu

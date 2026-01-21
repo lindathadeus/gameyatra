@@ -29,6 +29,7 @@
 [] The player is not falling down the ground platform, once, he crosses it
 [] The player also gets locked up with the zombie in the cage on collision
 [X] The level selector screen is missing
+[X] The level failed-or-completed screen is missing
 [X] There is indentation issue in the code
 [] The Game is not complete
 
