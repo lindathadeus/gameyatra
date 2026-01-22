@@ -5,6 +5,9 @@
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
 
+#define ZOMBIE_COLOUR PINK
+#define PLAYER_COLOUR GRAY
+
 // Entity structure with body dimensions
 typedef struct Entity {
     Vector2 position; // Center of the head
@@ -146,14 +149,14 @@ void TruncateText(const char* src, char* dst, int maxLen) {
 }
 
 void DrawLevels(const Narrative* nr) {
-    DrawText("Levels", 250, 50, 40, BLACK);
-    DrawText("Selection", 390, 50, 40, PINK);
+    DrawText("Levels", 250, 50, 40, PLAYER_COLOUR);
+    DrawText("Selection", 390, 50, 40, ZOMBIE_COLOUR);
 
     char buffer[30];
     const int MAX_CHARS = 29;
 
     for (int i = 0; i < LEVELS_COUNT; i++) {
-        Color color = (i == nr->selectedIndex) ? PINK : BLACK;
+        Color color = (i == nr->selectedIndex) ? ZOMBIE_COLOUR : PLAYER_COLOUR;
         TruncateText(nr->entries[i], buffer, MAX_CHARS);
         DrawText(buffer, 150, 230 + i * 40, 30, color);
     }
@@ -348,10 +351,10 @@ void DrawLevelOverlay(Level* level) {
         ? "Level Failed!!!"
         : "Level Passed!!!";
 
-    DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, Fade(BLACK, 0.5f));
+    DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, Fade(PLAYER_COLOUR, 0.5f));
 
-    Color border = PINK;
-    Color messageColor = (level->overlay == LevelOverlay::Failed) ? BLACK : PINK;
+    Color border = ZOMBIE_COLOUR;
+    Color messageColor = (level->overlay == LevelOverlay::Failed) ? PLAYER_COLOUR : ZOMBIE_COLOUR;
 
     DrawRectangleLines(200, 180, 360, 190, border);
     DrawRectangle(210, 190, 340, 170, WHITE);
@@ -360,18 +363,18 @@ void DrawLevelOverlay(Level* level) {
 
     SelectOverlayMenu(&level->overlayMenu);
     for (int i = 0; i < OVERLAYMENU_COUNT; i++) {
-        Color c = (i == level->overlayMenu.selectedIndex) ? PINK : BLACK;
+        Color c = (i == level->overlayMenu.selectedIndex) ? ZOMBIE_COLOUR : PLAYER_COLOUR;
         DrawText(level->overlayMenu.entry[i], 320, 260 + i*30, 20, c);
     }
 }
 
 void DrawLevel(Level* level, Narrative* nr) {
     if (level->playerState == PlayerState::Hugged)
-        DrawRotatedEntity(level->player, BLACK, BLACK);
+        DrawRotatedEntity(level->player, PLAYER_COLOUR, PLAYER_COLOUR);
     else
-        DrawEntity(level->player, BLACK, BLACK);
+        DrawEntity(level->player, PLAYER_COLOUR, PLAYER_COLOUR);
 
-    DrawEntity(level->zombie, PINK, PINK);
+    DrawEntity(level->zombie, ZOMBIE_COLOUR, ZOMBIE_COLOUR);
     DrawCage(level->cage, level->zombieState == ZombieState::InCage, 5, DARKGRAY);
     for (int i = 0; i < level->platform_count; i++)
         DrawPlatform(level->platform[i], BROWN);
@@ -425,11 +428,11 @@ GameState UpdateMenu(Menu* menu) {
 }
 
 void DrawMenu(const Menu* menu) {
-    DrawText("Zombie", 250, 50, 40, BLACK);
-    DrawText("Love",   390, 50, 40, PINK);
+    DrawText("Zombie", 250, 50, 40, PLAYER_COLOUR);
+    DrawText("Love",   390, 50, 40, ZOMBIE_COLOUR);
 
     for (int i = 0; i < MENU_ITEM_COUNT; i++) {
-        Color color = (i == menu->selectedIndex) ? PINK : BLACK;
+        Color color = (i == menu->selectedIndex) ? ZOMBIE_COLOUR : PLAYER_COLOUR;
         DrawText(menu->entries[i], 150, 230 + i * 40, 30, color);
     }
 }

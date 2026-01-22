@@ -31,6 +31,7 @@
 [X] The level selector screen is missing
 [X] The level failed-or-completed screen is missing
 [X] There is indentation issue in the code
+[X] The zombie and the player external attributes are not yet modified from a single point
 [] The Game is not complete
 
 # --- Coding Bugs (emerging) ---
