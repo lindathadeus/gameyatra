@@ -87,8 +87,10 @@ unsigned int SelectOverlayMenu(OverlayMenu* nr) {
     }   
     if (IsKeyPressed(KEY_ENTER)) {
         return nr->selectedIndex + 1; // valid selection
-    }   
-    DrawText(TextFormat("nr->selectedIndex = %d", nr->selectedIndex + 1), 10, 530, 20, PLAYER_COLOUR);
+    }
+#ifdef DEBUG
+    DrawText(TextFormat("Dbg: nr->selectedIndex = %d", nr->selectedIndex + 1), 10, 530, 20, PLAYER_COLOUR);
+#endif
     return 0; // no selection
 }
 
@@ -250,7 +252,6 @@ void UpdateZombie(Entity* zombie, Entity* player, Cage* cage, ZombieState zombie
                         zombie->position = Vector2Add(zombie->position, Vector2Scale(Vector2Normalize(direction), zombieSpeed)); 
                 } else if (zombieState == ZombieState::InCage) {
                         zombie->position.x = cage->position.x + cage->width / 2;
-                        //player.position.x = cage.position.x - cage.width / 4;
                 }
         }
 }
@@ -287,15 +288,15 @@ void UpdateLevelOverlay(Level* level) {
 
     unsigned int selected = SelectOverlayMenu(&level->overlayMenu);
 
-    DrawText(TextFormat("selected = %d", selected), 10, 550, 20, PLAYER_COLOUR);
-    if (selected == 1) {
-        // we need to continue to the next level
+#ifdef DEBUG
+    DrawText(TextFormat("dbg: selected = %d", selected), 10, 550, 20, PLAYER_COLOUR);
+#endif
+    if ((selected >= 1) && (selected <= 3)) {
         InitLevel(level);
     }
 }
 
 void UpdateLevel(Level* level) {
-    //if (level->gameOver) return;
     level->zombieSpeed = ((level->gameOver) || (level->gameComplete)) ? 0 : 2.0f;
     level->playerSpeed = ((level->gameOver) || (level->gameComplete)) ? 0 : 4.0f;
 
@@ -353,8 +354,7 @@ void DrawLevelOverlay(Level* level) {
 
     DrawText(msg, 280, 210, 30, messageColor);
 
-    //tmp, OVERLAYMENU_COUNT to 1
-    for (int i = 0; i < 1; i++) {
+    for (int i = 0; i < OVERLAYMENU_COUNT; i++) {
         Color c = (i == level->overlayMenu.selectedIndex) ? ZOMBIE_COLOUR : PLAYER_COLOUR;
         DrawText(level->overlayMenu.entry[i], 320, 260 + i*30, 20, c);
     }
