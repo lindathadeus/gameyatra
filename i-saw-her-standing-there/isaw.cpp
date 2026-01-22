@@ -60,7 +60,7 @@ void DrawNarrative(const Narrative* nr, int i) {
         DrawText(nr->entries[i], 10, 10, 20, DARKGRAY);
 }
 
-enum class LevelOverlay { None, Paused, Completed, Failed };
+enum class LevelOverlay { None, Completed, Failed };
 
 #define OVERLAYMENU_COUNT 3
 
@@ -88,6 +88,7 @@ unsigned int SelectOverlayMenu(OverlayMenu* nr) {
     if (IsKeyPressed(KEY_ENTER)) {
         return nr->selectedIndex + 1; // valid selection
     }   
+    DrawText(TextFormat("nr->selectedIndex = %d", nr->selectedIndex + 1), 10, 530, 20, PLAYER_COLOUR);
     return 0; // no selection
 }
 
@@ -277,20 +278,7 @@ void InitLevel(Level* level) {
     initOverlayMenu(&level->overlayMenu);
 }
 
-//just skeleton
-void NextLevel() {
-
-}
-
-//just temp
-void RestartLevel(Level* level) {
-
-}
-
 void UpdateLevelOverlay(Level* level) {
-    if (level->overlay != LevelOverlay::None)
-        return;
-
     if (level->playerState == PlayerState::Hugged)
         level->overlay = LevelOverlay::Failed;
 
@@ -299,14 +287,17 @@ void UpdateLevelOverlay(Level* level) {
 
     unsigned int selected = SelectOverlayMenu(&level->overlayMenu);
 
-    if (selected == 1) NextLevel();
-    if (selected == 2) RestartLevel(level);
-    if (selected == 3) level->overlay = LevelOverlay::None;
+    DrawText(TextFormat("selected = %d", selected), 10, 550, 20, PLAYER_COLOUR);
+    if (selected == 1) {
+        // we need to continue to the next level
+        InitLevel(level);
+    }
 }
 
 void UpdateLevel(Level* level) {
-    if (level->gameOver) return;
-    level->playerSpeed = level->gameComplete ? 0 : 4.0f;
+    //if (level->gameOver) return;
+    level->zombieSpeed = ((level->gameOver) || (level->gameComplete)) ? 0 : 2.0f;
+    level->playerSpeed = ((level->gameOver) || (level->gameComplete)) ? 0 : 4.0f;
 
     UpdatePlayer(&level->player, level->playerSpeed);
 
@@ -343,6 +334,7 @@ void UpdateLevel(Level* level) {
 
 // drawing function for various level overlays
 void DrawLevelOverlay(Level* level) {
+    // Draws the below only if the LevelOverlay is not NONE
     if (level->overlay == LevelOverlay::None)
         return;
 
@@ -361,8 +353,8 @@ void DrawLevelOverlay(Level* level) {
 
     DrawText(msg, 280, 210, 30, messageColor);
 
-    SelectOverlayMenu(&level->overlayMenu);
-    for (int i = 0; i < OVERLAYMENU_COUNT; i++) {
+    //tmp, OVERLAYMENU_COUNT to 1
+    for (int i = 0; i < 1; i++) {
         Color c = (i == level->overlayMenu.selectedIndex) ? ZOMBIE_COLOUR : PLAYER_COLOUR;
         DrawText(level->overlayMenu.entry[i], 320, 260 + i*30, 20, c);
     }
