@@ -31,7 +31,6 @@ NOTE: It is assumed that the developer is a c/c++ programmer and so the steps fo
     make PLATFORM=PLATFORM_DESKTOP RAYLIB_LIBTYPE=SHARED # To make the dynamic shared version.
 
     sudo make install RAYLIB_LIBTYPE=SHARED # Dynamic shared version.
-    sudo make uninstall RAYLIB_LIBTYPE=SHARED
 
     cd ~/gameyatra
     cd i-saw*
