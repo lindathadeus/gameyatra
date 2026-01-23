@@ -1,6 +1,5 @@
 #include "raylib.h"
 #include "raymath.h"
-#include "string.h"
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
@@ -128,10 +127,10 @@ typedef struct LevelManager {
 #define LEVELS_COUNT NARRATIVE_COUNT
 
 unsigned int SelectLevel(Narrative* nr) {
-    if (IsKeyPressed(KEY_DOWN)) {
+    if (IsKeyPressed(KEY_RIGHT)) {
         nr->selectedIndex = (nr->selectedIndex + 1) % LEVELS_COUNT;
     }
-    if (IsKeyPressed(KEY_UP)) {
+    if (IsKeyPressed(KEY_LEFT)) {
         nr->selectedIndex--;
         if (nr->selectedIndex < 0)
             nr->selectedIndex = LEVELS_COUNT - 1;
@@ -142,19 +141,6 @@ unsigned int SelectLevel(Narrative* nr) {
     return 0; // no selection
 }
 
-void TruncateText(const char* src, char* dst, int maxLen) {
-    int len = strlen(src);
-
-    if (len <= maxLen) {
-        strcpy(dst, src);
-        return;
-    }
-
-    strncpy(dst, src, maxLen - 3);
-    dst[maxLen - 3] = '\0';
-    strcat(dst, "...");
-}
-
 void DrawLevels(const Narrative* nr) {
     DrawText("Levels", 250, 50, 40, PLAYER_COLOUR);
     DrawText("Selection", 390, 50, 40, ZOMBIE_COLOUR);
@@ -162,10 +148,10 @@ void DrawLevels(const Narrative* nr) {
     char buffer[30];
     const int MAX_CHARS = 29;
 
-    for (int i = 0; i < LEVELS_COUNT - 1; i++) {
-        Color color = (i == nr->selectedIndex) ? ZOMBIE_COLOUR : PLAYER_COLOUR;
-        TruncateText(nr->entries[i + 1], buffer, MAX_CHARS);
-        DrawText(buffer, 150, 230 + i * 40, 30, color);
+    for (int i = 1; i <= LEVELS_COUNT - 1; i++) {
+        Color color = (i == nr->selectedIndex + 1) ? ZOMBIE_COLOUR : PLAYER_COLOUR;
+        DrawRectangleLines(150 + (i - 1) * 40, 230, 35, 30, color);
+        DrawText(TextFormat("%d", i), 160 + (i - 1) * 40, 230, 30, color);
     }
 }
 
@@ -270,6 +256,7 @@ void InitLevel(Level* level) {
     level->zombie = {{200, 400}, 10, 20, 40};
     level->cage   = {{600, 300}, 100, 150};
 
+    level->level_id = 1;
     level->platform_count = 1;
     
     level->platform[0] = {{50, 450}, 700, 30};
@@ -372,10 +359,10 @@ void UpdateLevel(Level* level, Narrative* nr) {
     unsigned int selected = SelectOverlayMenu(&level->overlayMenu);
 
 #ifdef DEBUG
-    DrawText(TextFormat("dbg: selected = %d", selected), 10, 550, 20, PLAYER_COLOUR);
+    DrawText(TextFormat("Dbg: current level = %d", level->level_id), 10, 550, 20, PLAYER_COLOUR);
 #endif
     if ((selected >= 1) && (selected <= 3)) {
-        if ((level->overlay == LevelOverlay::Failed) & (selected == 1)) // continue
+        if ((level->overlay == LevelOverlay::Failed) && (selected == 1)) // continue
             return; //Do nothing when level failed
 
         if ((selected == 3) || (selected == 2)) // retry and cancel

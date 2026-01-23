@@ -35,6 +35,7 @@
 [X] Continue in Level overlay is not disabled for failed state
 [X] The level narrative is not following the order
 [X] No new level is there
+[X] The levels are not in the number format
 [] The Game is not complete
 
 # --- Coding Bugs (emerging) ---
