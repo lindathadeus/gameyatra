@@ -32,6 +32,7 @@
 [X] The level failed-or-completed screen is missing
 [X] There is indentation issue in the code
 [X] The zombie and the player external attributes are not yet modified from a single point
+[X] Continue in Level overlay is not disabled for failed state
 [] The level narrative is not following the order
 [] No new level is there
 [] The Game is not complete

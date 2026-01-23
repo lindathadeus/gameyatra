@@ -7,6 +7,7 @@
 
 #define ZOMBIE_COLOUR PINK
 #define PLAYER_COLOUR GRAY
+#define DISABLED_COLOUR LIGHTGRAY
 
 // Entity structure with body dimensions
 typedef struct Entity {
@@ -292,6 +293,8 @@ void UpdateLevelOverlay(Level* level) {
     DrawText(TextFormat("dbg: selected = %d", selected), 10, 550, 20, PLAYER_COLOUR);
 #endif
     if ((selected >= 1) && (selected <= 3)) {
+        if ((level->overlay == LevelOverlay::Failed) & (selected == 1))
+            return; //Do nothing
         InitLevel(level);
     }
 }
@@ -356,6 +359,8 @@ void DrawLevelOverlay(Level* level) {
 
     for (int i = 0; i < OVERLAYMENU_COUNT; i++) {
         Color c = (i == level->overlayMenu.selectedIndex) ? ZOMBIE_COLOUR : PLAYER_COLOUR;
+        if ((level->overlay == LevelOverlay::Failed) & (i == 0))
+            c = (i == level->overlayMenu.selectedIndex) ? Fade(DISABLED_COLOUR, 0.8f) : DISABLED_COLOUR;
         DrawText(level->overlayMenu.entry[i], 320, 260 + i*30, 20, c);
     }
 }
@@ -493,6 +498,6 @@ int main() {
         }
 
         CloseWindow();
-        
+
         return 0;
 }
