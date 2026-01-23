@@ -9,6 +9,8 @@
 #define PLAYER_COLOUR GRAY
 #define DISABLED_COLOUR LIGHTGRAY
 
+#define DEBUG
+
 // Entity structure with body dimensions
 typedef struct Entity {
     Vector2 position; // Center of the head
@@ -51,9 +53,10 @@ typedef struct Narrative {
 } Narrative; 
 
 void InitNarrative(Narrative* nr) {
-    nr->entries[0] = "I saw her standing there but she was a zombie, So I put her in a cage.";
-    nr->entries[1] = "I knew she loved me too, because she always tried to hug me.";
-    nr->entries[2] = "Sometimes, the cage was hard to reach.";
+    nr->entries[0] = "I saw her standing there but she was a zombie.";
+    nr->entries[1] = "I saw her standing there but she was a zombie, So I put her in a cage.";
+    nr->entries[2] = "I knew she loved me too, because she always tried to hug me.";
+    nr->entries[3] = "Sometimes, the cage was hard to reach.";
     nr->selectedIndex = 0;
 }
 
@@ -159,9 +162,9 @@ void DrawLevels(const Narrative* nr) {
     char buffer[30];
     const int MAX_CHARS = 29;
 
-    for (int i = 0; i < LEVELS_COUNT; i++) {
+    for (int i = 0; i < LEVELS_COUNT - 1; i++) {
         Color color = (i == nr->selectedIndex) ? ZOMBIE_COLOUR : PLAYER_COLOUR;
-        TruncateText(nr->entries[i], buffer, MAX_CHARS);
+        TruncateText(nr->entries[i + 1], buffer, MAX_CHARS);
         DrawText(buffer, 150, 230 + i * 40, 30, color);
     }
 }
@@ -274,6 +277,7 @@ void InitLevel(Level* level) {
     level->levelNarrative = "I saw her standing there but she was a zombie, So I put her in a cage";
 
     level->gameOver = false;
+    level->gameComplete = false;
     level->playerState = PlayerState::SafeDistant;
     level->zombieState = ZombieState::Chasing;
     level->overlay = LevelOverlay::None;
@@ -286,20 +290,49 @@ void UpdateLevelOverlay(Level* level) {
 
     else if (level->zombieState == ZombieState::InCage)
         level->overlay = LevelOverlay::Completed;
-
-    unsigned int selected = SelectOverlayMenu(&level->overlayMenu);
-
-#ifdef DEBUG
-    DrawText(TextFormat("dbg: selected = %d", selected), 10, 550, 20, PLAYER_COLOUR);
-#endif
-    if ((selected >= 1) && (selected <= 3)) {
-        if ((level->overlay == LevelOverlay::Failed) & (selected == 1))
-            return; //Do nothing
-        InitLevel(level);
-    }
 }
 
-void UpdateLevel(Level* level) {
+void SetLevel(Level* level, Narrative* nr) {
+    level->levelNarrative = nr->entries[level->level_id];
+  
+    if (level->level_id == 1) {
+        level->player = {{400, 400}, 10, 20, 40};
+        level->zombie = {{200, 400}, 10, 20, 40};
+        level->cage   = {{600, 300}, 100, 150};
+
+        level->platform_count = 1;
+        
+        level->platform[0] = {{50, 450}, 700, 30};
+    }
+    if (level->level_id == 2) {
+        level->player = {{400, 400}, 10, 20, 40};
+        level->zombie = {{600, 400}, 10, 20, 40};
+        level->cage   = {{200, 300}, 100, 150};
+
+        level->platform_count = 1;
+        
+        level->platform[0] = {{50, 450}, 700, 30};
+    }
+    if (level->level_id == 3) {
+        level->player = {{580, 200}, 10, 20, 40};
+        level->zombie = {{600, 400}, 10, 20, 40};
+        level->cage   = {{200, 300}, 100, 150};
+
+        level->platform_count = 2;
+        
+        level->platform[0] = {{550, 250}, 100, 30};
+        level->platform[1] = {{50, 450}, 600, 30};
+    }
+        
+    level->gameOver = false;
+    level->gameComplete = false;
+    level->playerState = PlayerState::SafeDistant;
+    level->zombieState = ZombieState::Chasing;
+    level->overlay = LevelOverlay::None;
+    //initOverlayMenu(&level->overlayMenu);
+}
+
+void UpdateLevel(Level* level, Narrative* nr) {
     level->zombieSpeed = ((level->gameOver) || (level->gameComplete)) ? 0 : 2.0f;
     level->playerSpeed = ((level->gameOver) || (level->gameComplete)) ? 0 : 4.0f;
 
@@ -334,6 +367,22 @@ void UpdateLevel(Level* level) {
     // if the level is complete, then 
     // win / lose rules
     UpdateLevelOverlay(level);
+    
+    // select the user option from the overlay
+    unsigned int selected = SelectOverlayMenu(&level->overlayMenu);
+
+#ifdef DEBUG
+    DrawText(TextFormat("dbg: selected = %d", selected), 10, 550, 20, PLAYER_COLOUR);
+#endif
+    if ((selected >= 1) && (selected <= 3)) {
+        if ((level->overlay == LevelOverlay::Failed) & (selected == 1)) // continue
+            return; //Do nothing when level failed
+
+        if ((selected == 3) || (selected == 2)) // retry and cancel
+            InitLevel(level);
+        else
+            SetLevel(level, nr); // continue
+    }
 }
 
 // drawing function for various level overlays
@@ -458,13 +507,14 @@ int main() {
                                 gameState = UpdateMenu(&menu);
                                 break;
                         case GameState::Playing:
-                                UpdateLevel(&levelManager.currentLevel);
+                                UpdateLevel(&levelManager.currentLevel, &nr);
                                 break;
                         case GameState::LevelSelect: {
                             unsigned int chosen = SelectLevel(&nr);
                             if (chosen > 0) {
-                                levelManager.currentLevel.level_id = chosen - 1;
-                                InitLevel(&levelManager.currentLevel);
+                                levelManager.currentLevel.level_id = chosen;
+                                SetLevel(&levelManager.currentLevel, &nr);
+                                UpdateLevel(&levelManager.currentLevel, &nr);
                                 gameState = GameState::Playing;
                             }
                             break;
