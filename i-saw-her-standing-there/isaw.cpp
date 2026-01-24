@@ -251,24 +251,21 @@ void UpdateZombie(Entity* zombie, Entity* player, Cage* cage, ZombieState zombie
 // Level Lifecycle
 // =======================================================
 
-void InitLevel(Level* level) {
-    level->player = {{400, 400}, 10, 20, 40};
-    level->zombie = {{200, 400}, 10, 20, 40};
-    level->cage   = {{600, 300}, 100, 150};
+void SetLevel(Level* level, Narrative *nr);
+
+void InitLevel(Level* level, Narrative *nr) {
 
     level->level_id = 1;
     level->platform_count = 1;
     
-    level->platform[0] = {{50, 450}, 700, 30};
-        
-    level->levelNarrative = "I saw her standing there but she was a zombie, So I put her in a cage";
-
     level->gameOver = false;
     level->gameComplete = false;
     level->playerState = PlayerState::SafeDistant;
     level->zombieState = ZombieState::Chasing;
     level->overlay = LevelOverlay::None;
     initOverlayMenu(&level->overlayMenu);
+
+    SetLevel(level, nr);
 }
 
 void UpdateLevelOverlay(Level* level) {
@@ -366,7 +363,7 @@ void UpdateLevel(Level* level, Narrative* nr) {
             return; //Do nothing when level failed
 
         if ((selected == 3) || (selected == 2)) // retry and cancel
-            InitLevel(level);
+            InitLevel(level, nr);
         else
             SetLevel(level, nr); // continue
     }
@@ -481,7 +478,7 @@ int main() {
         Menu menu;
         Narrative nr;
 
-        InitLevel(&levelManager.currentLevel);
+        InitLevel(&levelManager.currentLevel, &nr);
         InitMenu(&menu);
         InitNarrative(&nr);
 
