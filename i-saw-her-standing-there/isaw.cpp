@@ -1,8 +1,6 @@
 #include "raylib.h"
 #include "raymath.h"
 
-#include <iostream>
-
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
 
@@ -46,7 +44,7 @@ enum class PlayerState {
         SafeDistant
 };
 
-#define NARRATIVE_COUNT 4
+#define NARRATIVE_COUNT 3
 
 typedef struct Narrative {
     const char* entries[NARRATIVE_COUNT];
@@ -126,17 +124,7 @@ typedef struct LevelManager {
         Level currentLevel;
 } LevelManager;
 
-enum class GameState {
-    Menu,
-    LevelSelect,
-    OverlayMenuSelect,
-    Next,
-    Playing,
-    Exit
-};
-
-//TODO, only two levels
-#define LEVELS_COUNT NARRATIVE_COUNT - 1
+#define LEVELS_COUNT NARRATIVE_COUNT
 
 unsigned int SelectLevel(Narrative* nr) {
     if (IsKeyPressed(KEY_RIGHT)) {
@@ -153,7 +141,7 @@ unsigned int SelectLevel(Narrative* nr) {
     return 0; // no selection
 }
 
-void DrawLevelSelect(const Narrative* nr) {
+void DrawLevels(const Narrative* nr) {
     DrawText("Levels", 250, 50, 40, PLAYER_COLOUR);
     DrawText("Selection", 390, 50, 40, ZOMBIE_COLOUR);
 
@@ -265,52 +253,27 @@ void UpdateZombie(Entity* zombie, Entity* player, Cage* cage, ZombieState zombie
 
 void SetLevel(Level* level, Narrative *nr);
 
-// resets the level flags
-void ClearLevel(Level* level) {
+void InitLevel(Level* level, Narrative *nr) {
+
+    level->level_id = 1;
+    level->platform_count = 1;
+    
     level->gameOver = false;
     level->gameComplete = false;
     level->playerState = PlayerState::SafeDistant;
     level->zombieState = ZombieState::Chasing;
     level->overlay = LevelOverlay::None;
-}
-
-void InitLevel(Level* level, Narrative *nr) {
-
-    level->level_id = 1;
-   
-    ClearLevel(level);
     initOverlayMenu(&level->overlayMenu);
 
     SetLevel(level, nr);
 }
 
-void UpdateLevel(Level* level, Narrative* nr);
-
-void UpdateOverlayMenuSelect(Level* level, Narrative* nr) {
-    unsigned int selected = SelectOverlayMenu(&level->overlayMenu);
-
-    if ((selected >= 1) && (selected <= 3)) {
-        if ((level->overlay == LevelOverlay::Failed) && (selected == 1)) // continue
-            return; // Do nothing when level failed
-
-        if ((selected == 3)) // cancel
-            InitLevel(level, nr);
-        else
-            SetLevel(level, nr); // continue
-    }
-    if (level->overlay != LevelOverlay::None)
-        return;
-}
-
-void UpdateLevelOverlay(Level* level, Narrative* nr) {
-
+void UpdateLevelOverlay(Level* level) {
     if (level->playerState == PlayerState::Hugged)
         level->overlay = LevelOverlay::Failed;
 
     else if (level->zombieState == ZombieState::InCage)
         level->overlay = LevelOverlay::Completed;
-
-    UpdateOverlayMenuSelect(level, nr);
 }
 
 void SetLevel(Level* level, Narrative* nr) {
@@ -344,9 +307,13 @@ void SetLevel(Level* level, Narrative* nr) {
         level->platform[0] = {{550, 250}, 100, 30};
         level->platform[1] = {{50, 450}, 600, 30};
     }
-
+        
+    level->gameOver = false;
+    level->gameComplete = false;
+    level->playerState = PlayerState::SafeDistant;
+    level->zombieState = ZombieState::Chasing;
+    level->overlay = LevelOverlay::None;
     //initOverlayMenu(&level->overlayMenu);
-    ClearLevel(level);
 }
 
 void UpdateLevel(Level* level, Narrative* nr) {
@@ -372,6 +339,9 @@ void UpdateLevel(Level* level, Narrative* nr) {
         ? PlayerState::Hugged
         : PlayerState::SafeDistant;
    
+    // Level progression 
+    if (level->zombieState == ZombieState::InCage) if ((level->level_id + 1) < NARRATIVE_COUNT) level->level_id++; 
+    
     // Game exits because the player is hugged
     level->gameOver = (level->playerState == PlayerState::Hugged);
 
@@ -380,21 +350,23 @@ void UpdateLevel(Level* level, Narrative* nr) {
 
     // if the level is complete, then 
     // win / lose rules
-    UpdateLevelOverlay(level, nr);
-}
+    UpdateLevelOverlay(level);
+    
+    // select the user option from the overlay
+    unsigned int selected = SelectOverlayMenu(&level->overlayMenu);
 
-GameState UpdateLevelSelect(Level* level, Narrative* nr){
+#ifdef DEBUG
+    DrawText(TextFormat("Dbg: current level = %d", level->level_id), 10, 550, 20, PLAYER_COLOUR);
+#endif
+    if ((selected >= 1) && (selected <= 3)) {
+        if ((level->overlay == LevelOverlay::Failed) && (selected == 1)) // continue
+            return; //Do nothing when level failed
 
-    unsigned int chosen = SelectLevel(nr);
-
-    if (chosen > 0) {
-        level->level_id = chosen;
-        SetLevel(level, nr);
-        UpdateLevel(level, nr);
-        return GameState::Playing;
-
+        if ((selected == 3) || (selected == 2)) // retry and cancel
+            InitLevel(level, nr);
+        else
+            SetLevel(level, nr); // continue
     }
-    return GameState::LevelSelect;
 }
 
 // drawing function for various level overlays
@@ -455,6 +427,13 @@ void InitMenu(Menu* menu) {
     menu->selectedIndex = 0;
 }
 
+enum class GameState {
+    Menu,
+    LevelSelect,
+    Playing,
+    Exit
+};
+
 GameState UpdateMenu(Menu* menu) {
     if (IsKeyPressed(KEY_DOWN)) {
         menu->selectedIndex++;
@@ -498,7 +477,6 @@ int main() {
         LevelManager levelManager;
         Menu menu;
         Narrative nr;
-        Level* level;
 
         InitLevel(&levelManager.currentLevel, &nr);
         InitMenu(&menu);
@@ -514,22 +492,17 @@ int main() {
                                 break;
                         case GameState::Playing:
                                 UpdateLevel(&levelManager.currentLevel, &nr);
-                                level = &levelManager.currentLevel;
-                                if (level->zombieState == ZombieState::InCage) {
-                                    gameState = GameState::Next;
-                                }
                                 break;
-                        case GameState::LevelSelect:
-                                gameState = UpdateLevelSelect(&levelManager.currentLevel, &nr);
-                                break;
-                        case GameState::Next:
-                                level = &levelManager.currentLevel;
-                                if (level->zombieState == ZombieState::InCage)
-                                    if ((level->level_id + 1) < NARRATIVE_COUNT)
-                                        level->level_id++;
+                        case GameState::LevelSelect: {
+                            unsigned int chosen = SelectLevel(&nr);
+                            if (chosen > 0) {
+                                levelManager.currentLevel.level_id = chosen;
                                 SetLevel(&levelManager.currentLevel, &nr);
+                                UpdateLevel(&levelManager.currentLevel, &nr);
                                 gameState = GameState::Playing;
-                                break;
+                            }
+                            break;
+                        }
                         default: break;
                 }
 
@@ -547,7 +520,7 @@ int main() {
                                 break;
 
                         case GameState::LevelSelect:
-                                DrawLevelSelect(&nr);
+                                DrawLevels(&nr);
                                 break;
 
                         default:

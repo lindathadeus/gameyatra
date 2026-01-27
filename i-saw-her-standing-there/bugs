@@ -37,7 +37,7 @@
 [X] No new level is there
 [X] The levels are not in the number format
 [] The height of the cage is too high
-[X] The next level is not based on state
+[] The next level is not based on state
 [] The Game is not complete
 
 # --- Coding Bugs (emerging) ---
